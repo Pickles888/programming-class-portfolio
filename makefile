@@ -1,2 +1,2 @@
 build:
-	runghc Main.hs > portfolio.html
+	runghc Main.hs > index.html
