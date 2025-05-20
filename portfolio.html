@@ -1,0 +1,324 @@
+<!DOCTYPE html><html ><head ><style>body{background-image: url("assets/holden.jpg");}.root{margin: 50px;opacity: 0.8;margin-left: 200px;margin-right: 200px;}h1{color: blue;background-color: white;padding: 5px;}h3{color: purple;padding: 5px;}.section{color: black;padding: 10px;background-color: white;margin-top: 10px;}.centered{display: flex;align-items: center;justify-content: center;}.multiline{white-space: pre-wrap;}.code-block{background-color: #282828;margin: 10px;padding: 10px;}code{color: #fbf1c7;}</style></head><body ><div class="root"><h1 >Holden Buzick's Portfolio</h1><div class="section"><h1 >Skills</h1><ul style="list-style-type:disc;"><li >Programming</li><li >Robotics</li><li >Middle School Diploma lmao</li><li >Making coffee ig (great unpaid intern)</li></ul></div><div class="section"><h1 >Headshot</h1><div class="centered"><img src="assets/holden.jpg"alt="Holden Headshot"></img></div></div><div class="section"><h1 >Contact</h1><div class="centered"><a href="https://github.com/Pickles888"style="margin:10px;flex-direction:column;"><img width="200px"height="200px"src="assets/github.png"alt="Github"></img></a><a href="mailto:holdenbuzick.com"style="margin:10px;flex-direction:column;"><img width="200px"height="200px"src="assets/thunderbird.png"alt="Email"></img></a><a href="tel:+14154400390"style="margin:10px;flex-direction:column;"><img width="200px"height="200px"src="assets/phone.png"alt="Phone"></img></a></div></div><div class="section"><h1 >About Me</h1><p >I am an annoying programmer who wont stop yapping about random stuff. I am a functional programming supremacist and am interested in learning type theory and working with programming languages and PLT. I also want to learn things like proof helpers such as LEAN and working with proofs of programs.</p></div><div class="section"><h1 >Projects</h1><ul style="list-style-type:disc;"><li ><a href="https://github.com/Pickles888/haskell-leds">Haskell LEDS Simulator</a></li><li ><a href="https://github.com/Pickles888/iced-todo">Todo List Written in Iced</a></li><li ><a >Interpretted Lisp & Haskell Inspired programming language (WIP)</a></li></ul></div><div class="section"><h1 >This Project!</h1><details ><summer ></summer><div ><h3 >Main.hs</h3><div class="code-block"><code class="multiline">
+module Main where
+
+import CSS
+import HTML
+import Lib
+
+import System.Directory
+import System.FilePath
+
+main :: IO ()
+main = do
+  homeDir <- getHomeDirectory
+  let cacheDir = homeDir </> ".cache" </> "portfolio-webserver"
+  let filePaths = map (cacheDir </>) ["Main.hs", "Lib.hs", "HTML.hs", "CSS.hs"]
+  createDirectoryIfMissing True cacheDir
+  result <- traverse doesFileExist filePaths
+  if and result then do
+    files <- traverse readFile filePaths
+    case files of
+      [mainStr, libStr, htmlStr, cssStr] -> do
+        let fileStruct = Files mainStr libStr htmlStr cssStr
+        print $
+          Root [
+            Doctype "html",
+            Html [
+              Head [
+                Style cssBody
+              ],
+              Body [
+                htmlBody fileStruct
+              ]
+            ]
+          ]
+      _ -> print "Unexpected file contents!"
+    else print "Files don't exist!"
+
+data Files = Files
+  { mainFile :: String
+  , libFile :: String
+  , htmlFile :: String
+  , cssFile :: String
+  }
+
+githubURL :: String
+githubURL = "https://github.com/Pickles888"
+
+data Section = Section
+  {
+    title :: String,
+    content :: [HTML],
+    extraProps :: HTMLProps
+  }
+
+mkSection :: (ToHTML a) => HTMLProps -> String -> [a] -> HTML
+mkSection props s xs = toHTML $ Section {title = s, content = map toHTML xs, extraProps = props}
+
+instance ToHTML Section where
+  toHTML :: Section -> HTML
+  toHTML (Section {title, content, extraProps}) =
+    Div (mkClass "section" <> extraProps) $ Heading 1 empty title : content
+
+htmlBody :: Files -> HTML
+htmlBody (Files {mainFile, libFile, htmlFile, cssFile}) =
+  mkDiv (mkClass "root") [
+    Heading 1 empty "Holden Buzick's Portfolio",
+    mkSection empty "Skills" [
+      mkBulletList $ map Text [
+        "Programming",
+        "Robotics",
+        "Middle School Diploma lmao",
+        "Making coffee ig (great unpaid intern)"
+      ]
+    ],
+
+    mkSection empty "Headshot" [
+      Div (mkClass "centered") [
+        Image empty "assets/holden.jpg" "Holden Headshot"
+      ]
+    ],
+
+    mkSection empty "Contact" $ (:[]) $
+      Div (mkClass "centered") $
+        map (\(url, img, alt) ->
+            Other "a" (mkHyperlink url <> mkAttr ("style", "margin:10px;flex-direction:column;")) [
+              Image ((\a -> mkSize a a) 200) img alt
+            ]
+        ) [
+          (githubURL, "assets/github.png", "Github"),
+          ("mailto:holdenbuzick.com", "assets/thunderbird.png", "Email"),
+          ("tel:+14154400390", "assets/phone.png", "Phone")
+        ],
+
+    mkSection empty "About Me" [
+      Other "p" empty [
+        Text $ unwords [
+          "I am an annoying programmer who wont stop yapping about random stuff.",
+          "I am a functional programming supremacist and am interested",
+          "in learning type theory and working with programming languages and PLT.",
+          "I also want to learn things like proof helpers such as LEAN and working with proofs of programs."
+        ]
+      ]
+    ],
+
+    mkSection empty "Projects" [
+      mkBulletList $
+        map (\(text, link) -> Other "a" (maybe empty mkHyperlink link) [Text text]) [
+          ("Haskell LEDS Simulator", Just "https://github.com/Pickles888/haskell-leds"),
+          ("Todo List Written in Iced", Just "https://github.com/Pickles888/iced-todo"),
+          ("Interpretted Lisp & Haskell Inspired programming language (WIP)", Nothing)
+        ]
+    ],
+
+    mkSection empty "This Project!" [
+      Other "details" empty (Other "summer" empty [] : map (\(title, code) ->
+        Div empty [
+          Heading 3 empty title,
+          Div (mkClass "code-block") $ (:[]) $ Other "code" (mkClass "multiline") [Text ("\n" ++ code)]
+        ]) [
+          ("Main.hs", mainFile),
+          ("Lib.hs", libFile),
+          ("HTML.hs", htmlFile),
+          ("CSS.hs", cssFile)
+        ])
+    ]
+  ]
+
+cssBody :: CSS
+cssBody =
+  [
+    CSSObject "body" [
+      mkDef "background-image" "url(\"assets/holden.jpg\")"
+    ],
+
+    CSSObject ".root" [
+      mkDef "margin" "50px",
+      mkDef "opacity" "0.8",
+      mkDef "margin-left" "200px",
+      mkDef "margin-right" "200px"
+    ],
+
+    CSSObject "h1" [
+      mkDef "color" "blue",
+      mkDef "background-color" "white",
+      mkDef "padding" "5px"
+    ],
+
+    CSSObject "h3" [
+      mkDef "color" "purple",
+      mkDef "padding" "5px"
+    ],
+
+    CSSObject ".section" [
+      mkDef "color" "black",
+      mkDef "padding" "10px",
+      mkDef "background-color" "white",
+      mkDef "margin-top" "10px"
+    ],
+
+    CSSObject ".centered" [
+      mkDef "display" "flex",
+      mkDef "align-items" "center",
+      mkDef "justify-content" "center"
+    ],
+
+    CSSObject ".multiline" [
+      mkDef "white-space" "pre-wrap"
+    ],
+
+    CSSObject ".code-block" [
+      mkDef "background-color" "#282828",
+      mkDef "margin" "10px",
+      mkDef "padding" "10px"
+    ],
+
+    CSSObject "code" [
+      mkDef "color" "#fbf1c7"
+    ]
+  ]
+
+expandableCSS :: CSS
+expandableCSS =
+  [
+    CSSObject "details" [
+      mkDef "user-select" "none"
+    ],
+
+    CSSObject "details>summary span.icon" [
+      mkDef "width" "24px",
+      mkDef "height" "24px",
+      mkDef "transition" "all 0.3s",
+      mkDef "margin-left" "auto"
+    ],
+
+    CSSObject "details[open] summary span.icon" [
+      mkDef "transform" "rotate(180deg)"
+    ],
+
+    CSSObject "summary" [
+      mkDef "display" "flex",
+      mkDef "cursor" "pointer"
+    ],
+
+    CSSObject "summary::-webkit-details-marker" [
+      mkDef "display" "none"
+    ]
+  ]</code></div></div><div ><h3 >Lib.hs</h3><div class="code-block"><code class="multiline">
+module Lib where
+
+-- returns an empty version of the object
+class Empty a where
+  empty :: a</code></div></div><div ><h3 >HTML.hs</h3><div class="code-block"><code class="multiline">
+module HTML where
+
+import CSS
+import Lib
+import Control.Applicative (liftA2)
+import GHC.Base ((<|>))
+
+data HTMLProps = HTMLProps
+  {
+    cssClass :: Maybe String,
+    extraVars :: [(String, Maybe String)]
+  }
+
+instance Semigroup HTMLProps where
+  (HTMLProps {cssClass = c1, extraVars = v1}) <> (HTMLProps {cssClass = c2, extraVars =v2}) = 
+    HTMLProps (liftA2 (\a b -> a ++ " " ++ b) c1 c2 <|> c1 <|> c2) (v1 ++ v2)
+
+mkAttrs :: [(String, String)] -> HTMLProps
+mkAttrs = HTMLProps Nothing . fmap (fmap Just)
+
+mkAttr :: (String, String) -> HTMLProps
+mkAttr (a, b) = HTMLProps Nothing [(a, Just b)]
+
+mkFlags :: [String] -> HTMLProps
+mkFlags = HTMLProps Nothing . map (, Nothing)
+
+mkClass :: String -> HTMLProps
+mkClass className = HTMLProps (Just className) []
+
+mkHyperlink :: String -> HTMLProps
+mkHyperlink s = mkAttrs [("href", s)]
+
+instance Empty HTMLProps where
+    empty = HTMLProps Nothing []
+
+data HTML 
+    = Root [HTML]
+    | Div HTMLProps [HTML]
+    | Heading Int HTMLProps String
+    | Doctype String
+    | Style CSS
+    | Other String HTMLProps [HTML]
+    | Html [HTML]
+    | Head [HTML]
+    | Body [HTML]
+    | Text String
+    | Image HTMLProps String String
+
+instance Empty HTML where
+  empty = Other "" empty []
+
+instance Show HTML where
+    show (Div props xs) = show $ Other "div" props xs
+    show (Heading num props s) = show $ Other ("h" ++ show num) props [Text s]
+    show (Html xs) = show $ Other "html" empty xs
+    show (Head xs) = show $ Other "head" empty xs
+    show (Body xs) = show $ Other "body" empty xs
+    show (Other name props xs) = 
+        let obj = showHTMLObject name props 
+        in fst obj ++ concatMap show xs ++ snd obj
+
+    show (Style css) = "<style>" ++ concatMap show css ++ "</style>"
+    show (Doctype s) = "<!DOCTYPE " ++ s ++ ">"
+    show (Root xs) = concatMap show xs
+    show (Text s) = s
+    show (Image props name alt) = show $ Other "img" (props <> mkAttrs [("src", name), ("alt", alt)]) []
+
+showHTMLObject :: String -> HTMLProps -> (String, String)
+showHTMLObject name (HTMLProps {cssClass, extraVars}) = 
+  (
+    concat ["<", name, " ", maybe "" (mkVar "class" . Just) cssClass, 
+      concatMap (uncurry mkVar) extraVars, ">"],
+    concat ["</", name, ">"]
+  )
+
+class ToHTML a where
+  toHTML :: a -> HTML
+
+instance ToHTML HTML where
+  toHTML a = a
+
+mkDiv :: (ToHTML a) => HTMLProps -> [a] -> HTML
+mkDiv props xs = Div props $ map toHTML xs
+
+instance ToHTML String where
+  toHTML = Text
+
+instance ToHTML Int where
+  toHTML = toHTML . show
+
+mkBulletList :: [HTML] -> HTML
+mkBulletList = Other "ul" (mkAttrs [("style", "list-style-type:disc;")]) . map (Other "li" empty . (:[]))
+
+-- width height (px)
+mkSize :: Int -> Int -> HTMLProps
+mkSize width height = mkAttrs [("width", px width), ("height", px height)]
+  where
+    px a = show a ++ "px"</code></div></div><div ><h3 >CSS.hs</h3><div class="code-block"><code class="multiline">
+module CSS where
+
+data CSSObject = CSSObject String [(String, String)]
+
+mkDef :: String -> String -> (String, String)
+mkDef a b = (a, b)
+
+type CSS = [CSSObject]
+
+instance Show CSSObject where
+  show (CSSObject name xs) = name ++ "{" ++ concatMap (\(a, b) -> a ++ ": " ++ b ++ ";") xs ++ "}"
+
+mkVar :: String -> Maybe String -> String
+mkVar var val = var ++ maybe "" (("=" ++) . show) val</code></div></div></details></div></div></body></html>
