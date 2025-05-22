@@ -122,6 +122,17 @@ htmlBody (Files {mainFile, libFile, htmlFile, cssFile}) =
           ("HTML.hs", htmlFile),
           ("CSS.hs", cssFile)
         ])
+    ],
+
+    mkSection empty "Experience" [
+      mkBulletList [
+        Text "First Robotics Competition (8852!!!!): Java, working in a large project with others.",
+        Text "Experience working on coding projects."
+      ]
+    ],
+
+    mkSection empty "Education" [
+      Text "I'm a softmore in highschool, going into junior year!"
     ]
   ]
 
@@ -321,4 +332,4 @@ instance Show CSSObject where
   show (CSSObject name xs) = name ++ "{" ++ concatMap (\(a, b) -> a ++ ": " ++ b ++ ";") xs ++ "}"
 
 mkVar :: String -> Maybe String -> String
-mkVar var val = var ++ maybe "" (("=" ++) . show) val</code></div></div></details></div></div></body></html>
+mkVar var val = var ++ maybe "" (("=" ++) . show) val</code></div></div></details></div><div class="section"><h1 >Experience</h1><ul style="list-style-type:disc;"><li >First Robotics Competition (8852!!!!): Java, working in a large project with others.</li><li >Experience working on coding projects.</li></ul></div><div class="section"><h1 >Education</h1>I'm a softmore in highschool, going into junior year!</div></div></body></html>

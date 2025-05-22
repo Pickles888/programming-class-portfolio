@@ -121,6 +121,17 @@ htmlBody (Files {mainFile, libFile, htmlFile, cssFile}) =
           ("HTML.hs", htmlFile),
           ("CSS.hs", cssFile)
         ])
+    ],
+
+    mkSection empty "Experience" [
+      mkBulletList [
+        Text "First Robotics Competition (8852!!!!): Java, working in a large project with others.",
+        Text "Experience working on coding projects."
+      ]
+    ],
+
+    mkSection empty "Education" [
+      Text "I'm a softmore in highschool, going into junior year!"
     ]
   ]
 
