@@ -90,14 +90,18 @@ htmlBody (Files {mainFile, libFile, htmlFile, cssFile}) =
           ("tel:+14154400390", "assets/phone.png", "Phone")
         ],
 
-    mkSection empty "About Me" [
-      Other "p" empty [
-        Text $ unwords [
-          "I am an annoying programmer who wont stop yapping about random stuff.",
-          "I am a functional programming supremacist and am interested",
-          "in learning type theory and working with programming languages and PLT.",
-          "I also want to learn things like proof helpers such as LEAN and working with proofs of programs."
-        ]
+    mkSection empty "About Me" $ map (\a -> Other "p" empty [a]) [
+      Text $ unwords [
+        "I am an annoying programmer who wont stop yapping about random stuff.",
+        "I am a functional programming supremacist and am interested",
+        "in learning type theory and working with programming languages and PLT.",
+        "I also want to learn things like proof helpers such as LEAN and working with proofs of programs."
+      ],
+
+      Text $ unwords [
+        "In my freetime I play video games, browse wikipedia (genuinely an addiction), watch youtube, learn langauges, and sleep mostly.",
+        "I also occasionally hang out with friends.",
+        "I also work on robotics in my freetime."
       ]
     ],
 
@@ -126,12 +130,14 @@ htmlBody (Files {mainFile, libFile, htmlFile, cssFile}) =
     mkSection empty "Experience" [
       mkBulletList [
         Text "First Robotics Competition (8852!!!!): Java, working in a large project with others.",
-        Text "Experience working on coding projects."
+        Text "Experience working on coding projects in Java, Rust, Python, and Haskell",
+        Text "AP CSA (if that counts as anything)"
       ]
     ],
 
-    mkSection empty "Education" [
-      Text "I'm a softmore in highschool, going into junior year!"
+    mkSection empty "Education" $ map (\a -> Other "p" empty [a]) [
+      Text "I'm a softmore in highschool, going into junior year.",
+      Text "I also (very crazy) have a middle school diploma!"
     ]
   ]
 
